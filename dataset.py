@@ -11,6 +11,7 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.preprocessing import scale
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 from scipy.spatial.distance import pdist
+import utils
 
 def random_split(config, features):
     data = np.transpose(features)
@@ -100,14 +101,29 @@ def load_dataset(config):
     elif config.dataset=='life':
         data = _life(config)
 
-    elif config.dataset=='alzheimers':
-        data = _alzheimers(config)
+    elif config.dataset=='pima':
+        data = _pima(config)
 
-    elif 'alzheimers_test' in config.dataset:
-        data = _alzheimers_test(config)
+    elif config.dataset=='horse':
+        data = _horse(config)
+
+    elif config.dataset=='bands':
+        data = _bands(config)
+
+    elif config.dataset=='hepatitis':
+        data = _hepatitis(config)
+
+    elif config.dataset=='mammographics':
+        data = _mammographics(config)
+
+    elif config.dataset=='kidney_disease':
+        data = _kidney_disease(config)
+
+    elif config.dataset=='wisconsin':
+        data = _wisconsin(config)
+
 
     return data
-
 
 
 def _boston(config):
@@ -147,7 +163,7 @@ def _boston(config):
     return data
 
 def _cement(config):
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'cement.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'cement.csv'))
     
     target_col = 'Concrete compressive strength(MPa, megapascals) '
     y = data_df[target_col]
@@ -180,7 +196,7 @@ def _cement(config):
 
 def _energy_efficiency(config):
 
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'energy_efficiency.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'energy_efficiency.csv'))
     
     target_col1 = 'Heating Load'
     target_col2 = 'Cooling Load'
@@ -230,7 +246,7 @@ def _energy_efficiency(config):
     return data
 
 def _kin8nm(config):
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'kin8nm.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'kin8nm.csv'))
     
     y = data_df['y']
 
@@ -260,7 +276,7 @@ def _kin8nm(config):
     return data
 
 def _power_plant(config):
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'power_plant.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'power_plant.csv'))
     
     y = data_df['PE']
 
@@ -300,7 +316,7 @@ def _power_plant(config):
     return data
 
 def _protein(config):
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'protein.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'protein.csv'))
     
     y = data_df['RMSD']
 
@@ -331,7 +347,7 @@ def _protein(config):
     return data
 
 def _wine(config):
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'wine.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'wine.csv'))
     
     y = data_df['quality']
 
@@ -375,7 +391,7 @@ def _yacht(config):
     cols = ['Longitudinal position of the center of buoyancy', 'Prismatic coefficient', 'Length-displacement ratio', 
             'Beam-draught ratio', 'Length-beam ratio', 'Froude number', 'Residuary resistance per unit weight of displacement']
 
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'yacht.data'), sep="\\s+", names=cols)
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'yacht.data'), sep="\\s+", names=cols)
     target_col = 'Residuary resistance per unit weight of displacement'
     y = data_df[target_col]
     df = data_df.drop(columns=[target_col])
@@ -408,7 +424,7 @@ def _naval(config):
             't48', 't1', 't2', 'p48', 'p1', 'p2', 'pexh',
             'tic', 'mf', 'y1', 'y2']
 
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'naval.csv'), sep='\\s+', names=cols)
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'naval.csv'), sep='\\s+', names=cols)
     target_col = ['y1', 'y2']
     
     y = data_df[target_col[0]]
@@ -453,7 +469,7 @@ def _naval(config):
 
 def _msd(config):
     
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'year_prediction.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'year_prediction.csv'))
     target_col = 'label'
     
     y = data_df[target_col]
@@ -493,7 +509,7 @@ def _msd(config):
     return data
 
 def _life(config):
-    data_df = pd.read_csv(os.path.join(config.datasets_dir, 'life_expectancy.csv'))
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'life_expectancy.csv'))
     data_df[['Country']] = data_df[['Country']].apply(LabelEncoder().fit_transform)
     data_df[['Status']] = data_df[['Status']].apply(LabelEncoder().fit_transform)
     data_df = data_df.dropna()
@@ -521,4 +537,532 @@ def _life(config):
         for i, x in enumerate(X):
             data[str(i)] = x
 
+    return data
+
+
+def _life(config):
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'life_expectancy.csv'))
+    data_df[['Country']] = data_df[['Country']].apply(LabelEncoder().fit_transform)
+    data_df[['Status']] = data_df[['Status']].apply(LabelEncoder().fit_transform)
+    data_df_dropped = data_df.dropna()
+    
+    target_col = 'Life expectancy '
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df['Life expectancy '].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _pima(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/pima_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/pima_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = '8'
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _bands(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/bands_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/bands_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _horse(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/horse_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/horse_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _hepatitis(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/hepatitis_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/hepatitis_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _hepatitis(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/hepatitis_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/hepatitis_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _mammographics(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/mammographics_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/mammographics_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _kidney_disease(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/kidney_disease_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/kidney_disease_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
+    return data
+
+def _wisconsin(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/wisconsin_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/wisconsin_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    data_df_dropped = data_df.dropna()
+    
+    ###
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+
+    data_df = data_df[~data_df[target_col].isnull()]
+    null_df = data_df[data_df.isnull().any(axis=1)]
+    filled_df = null_df.fillna(np.nan)
+
+    y_test = np.asarray(filled_df[target_col])
+    x_test = filled_df.drop(columns=[target_col]).values
+    ###
+
+    
+    y = np.asarray(data_df_dropped[target_col])
+
+    df = data_df_dropped.drop(columns=[target_col])
+    cols = df.columns.tolist()
+    print("x_test {}, y_test {}".format(x_test.shape, y_test.shape))
+    print("df {}, y {}".format(df.shape, y.shape))
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y, '0_test':x_test, 'y_test':y_test}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+        clusters = feature_split(config, df.values, return_split_sizes=True)
+        X_test_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_test_split.append(x_test[:, indices])
+        
+        for i, x in enumerate(X_test_split):
+            data["{}_test".format(i)] = x
+
+        data['y_test'] = y_test
     return data

@@ -1,15 +1,17 @@
 import numpy as np
+np.random.seed(0)
 import os
 from dataset import load_dataset
 # from evaluator import evaluate_n
 import utils
 import trainer
+import models
 
 config = utils.EasyDict({
     'dataset_dir': './datasets/',
     
-    'dataset': 'boston',
-    'model_dir': 'models_test_scaled/',
+    'dataset': 'wine',
+    'model_dir': 'models_nips_20folds/',
     
     'n_folds': 20,
     
@@ -26,11 +28,14 @@ config = utils.EasyDict({
 
     'impute': 'mean',
     'drop': '0.3',
+    'experiment': 2,
+    'task': 'regression',
+    # 'task': 'classification',
 
-    # 'lr' : 0.05,
     'lr' : 0.1,
+    # 'lr' : 0.1,
 
-    'epochs' : 3000,
+    'epochs' : 1000,
     
     'loss' : 'mse',
     
@@ -45,7 +50,7 @@ config = utils.EasyDict({
 
 def main(config):
 
-    config.expt_name = config.mod_split + "_" + config.build_model + "_" + config.last_layer + "_lr" + str(config.lr) + "_bs" + str(config.batch_size) + "_epochs" + str(config.epochs)
+    config.expt_name = "Exp" + str(config.experiment) + "_" + config.mod_split + "_" + config.build_model + "_" + config.last_layer + "_lr" + str(config.lr) + "_bs" + str(config.batch_size) + "_epochs" + str(config.epochs) + "_folds" + str(config.n_folds)
 
     # Create save directories
     utils.create_directories(config)
@@ -59,9 +64,20 @@ def main(config):
 
     print(data.keys())
 
-    n_feature_sets = len(data.keys()) - 1
+    if config.experiment==1 or config.experiment==3:
+        n_feature_sets = len(data.keys()) - 1
+    elif config.experiment==2:
+        n_feature_sets = int(len(data.keys())/2) - 1
+    
     X = [np.array(data['{}'.format(i)]) for i in range(n_feature_sets)]
     y = np.array(data['y'])
+
+    if config.task=='classification':
+        config.n_classes = len(set(y))
+
+    if config.experiment==2:
+        X_test = [np.array(data['{}_test'.format(i)]) for i in range(n_feature_sets)]
+        y_test = np.array(data['y_test'])
 
     config.n_feature_sets = n_feature_sets
     config.feature_split_lengths = [i.shape[1] for i in X]
@@ -70,12 +86,22 @@ def main(config):
     print('Number of feature sets ', n_feature_sets)
     [print('Shape of feature set {} {}'.format(e, np.array(i).shape)) for e,i in enumerate(X)]
 
-    if config.dataset in ['boston', 'cement', 'power_plant', 'wine', 'yacht', 'kin8nm', 'energy_efficiency', 'naval']:
+    if config.experiment==2:
+        [print('Shape of test feature set {} {}'.format(e, np.array(i).shape)) for e,i in enumerate(X_test)]
+
+    if config.dataset in ['boston', 'cement', 'power_plant', 'wine', 'yacht', 'kin8nm', 'energy_efficiency', 'naval', 'life', 'pima']:
         config.units = 50
     elif config.dataset in ['msd', 'protein', 'toy']:
         config.units = 100
+    else:
+        config.units = 50
 
-    trainer.train_expt(X, y, config)
+    if config.experiment==1:
+        trainer.train_expt1(X, y, config)
+    if config.experiment==2:
+        trainer.train_expt2(X, y, X_test, y_test, config)
+    if config.experiment==3:
+        trainer.train_expt3(X, y, config)
     print(config.expt_name)
 if __name__ == '__main__':
     main(config)

@@ -1,4 +1,5 @@
 import numpy as np
+np.random.seed(0)
 from pathlib import Path
 import os
 from sklearn.preprocessing import StandardScaler
@@ -36,6 +37,13 @@ def replace_missing(X_train, X_test, config):
 
 def drop_features(X_train, X_test, config):
 	np.random.seed(0)
+	
+	if config.experiment==1:
+		return drop_features_random(X_train, X_test, config)
+	elif config.experiment==2:
+		return replace_missing(X_train, X_test, config)
+
+def drop_features_random(X_train, X_test, config):
 	miss_perc = float(config.drop)
 	features = np.sum(config.feature_split_lengths)
 	rows_train = len(X_train[0])
@@ -80,3 +88,6 @@ def standard_scale(x_train, x_test):
 	x_train = scalar.transform(x_train)
 	x_test = scalar.transform(x_test)
 	return x_train, x_test
+
+def read_data(path, sep=',', val_type='f8'):
+	return np.genfromtxt(path, dtype=val_type, delimiter=sep)
