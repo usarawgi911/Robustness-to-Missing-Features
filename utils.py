@@ -18,7 +18,15 @@ def create_directories(config):
     model_dir = Path(os.path.join(config.model_dir, config.dataset))
     model_dir.joinpath(config.expt_name).mkdir(parents=True, exist_ok=True)
 
-def replace_missing(X_train, X_test, config):
+def replace_missing(X_train, X_test, config, pre_split=False):
+
+	if pre_split:
+		if config.impute=='mean':
+			ind = np.where(np.isnan(X_train))
+			col_mean = np.nanmean(X_train, axis=0)
+			X_train[ind] = np.take(col_mean, ind[1])
+			return X_train, 0
+
 	if config.impute=='mean':
 		col_means = [0]*config.n_feature_sets
 		for i in range(config.n_feature_sets):
@@ -38,9 +46,9 @@ def replace_missing(X_train, X_test, config):
 def drop_features(X_train, X_test, config):
 	np.random.seed(0)
 	
-	if config.experiment==1:
+	if config.experiment==1 or config.experiment=='mar_doublecv':
 		return drop_features_random(X_train, X_test, config)
-	elif config.experiment==2:
+	elif config.experiment==2 or config.experiment==4:
 		return replace_missing(X_train, X_test, config)
 
 def drop_features_random(X_train, X_test, config):
@@ -91,3 +99,37 @@ def standard_scale(x_train, x_test):
 
 def read_data(path, sep=',', val_type='f8'):
 	return np.genfromtxt(path, dtype=val_type, delimiter=sep)
+
+def ohe(y_train, y_val=None, y_test=None):
+	
+	n_classes = len(np.unique(y_train))
+	y_train_ohe = []
+	for i in range(len(y_train)):
+		tmp = [0]*n_classes
+		tmp[(int)(y_train[i])] = 1
+		y_train_ohe.append(tmp)
+
+	if(type(y_val)==type(None) and type(y_test)==type(None)):
+		return np.asarray(y_train_ohe)
+
+	elif(type(y_test)==type(None)):
+		y_val_ohe = []
+		for i in range(len(y_val)):
+			tmp = [0]*n_classes
+			tmp[(int)(y_val[i])] = 1
+			y_val_ohe.append(tmp)
+		return np.asarray(y_train_ohe), np.asarray(y_val_ohe)
+
+	else:
+		y_val_ohe = []
+		for i in range(len(y_val)):
+			tmp = [0]*n_classes
+			tmp[(int)(y_val[i])] = 1
+			y_val_ohe.append(tmp)
+
+		y_test_ohe = []
+		for i in range(len(y_test)):
+			tmp = [0]*n_classes
+			tmp[(int)(y_test[i])] = 1
+			y_test_ohe.append(tmp)
+		return np.asarray(y_train_ohe), np.asarray(y_val_ohe), np.asarray(y_test_ohe)

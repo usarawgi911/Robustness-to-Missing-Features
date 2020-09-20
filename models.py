@@ -4,8 +4,9 @@ from tensorflow.keras.layers import Dense, Concatenate, Average, Input
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
-def create_feature_extractor_block(x, units):
-	x = Dense(units, activation='relu')(x)
+def create_feature_extractor_block(x, units, layers=1):
+	for i in range(layers):
+		x = Dense(units, activation='relu')(x)
 	return x
 
 def create_mu_block(x_list, config):
@@ -15,11 +16,13 @@ def create_mu_block(x_list, config):
 		else:
 			# pad first if prorated
 			max_len = np.max(config.feature_units)
-			print("Max len {}".format(max_len))
+			# print("Max len {}".format(max_len))
 			for i, a in enumerate(x_list):
-				print(i, a)
+				# print(i, a)
 				if (max_len-config.feature_units[i])>0:
-					x_list[i] = tf.pad(a, [[0, 0], [max_len-config.feature_units[i], 0]])
+					left_pad = (int)((max_len-config.feature_units[i])/2)
+					right_pad = max_len-config.feature_units[i]-left_pad 
+					x_list[i] = tf.pad(a, [[0, 0], [left_pad, right_pad]])
 			x = Average()(x_list)
 		if config.task=='regression':
 			x = Dense(1)(x)
@@ -50,15 +53,20 @@ def build_model(config):
 	for i in range(n_feature_sets):
 		units = config.units
 		if config.build_model=='prorated':
-			# print(config.feature_split_lengths[i] * config.units / sum(config.feature_split_lengths))
 			units = math.floor(config.feature_split_lengths[i] * config.units / sum(config.feature_split_lengths) )
 		config.feature_units.append(units)
-		feature_extractors.append(create_feature_extractor_block(inputs[i], units = units))
+		
+		if config.dataset=='esr':
+			hidden_layers = 3
+		else:
+			hidden_layers = 1
+		feature_extractors.append(create_feature_extractor_block(inputs[i], units = units, layers = hidden_layers))
 
 	output = create_mu_block(feature_extractors, config)
+	
 	model = tf.keras.models.Model(inputs=inputs, outputs=output)
 	if config.verbose:
 		model.summary()
-		tf.keras.utils.plot_model(model, to_file='model.png', show_shapes=False, show_layer_names=True,
+		tf.keras.utils.plot_model(model, to_file='model.png', show_shapes=True, show_layer_names=True,
 								  rankdir='TB', expand_nested=False, dpi=96)
 	return model, loss

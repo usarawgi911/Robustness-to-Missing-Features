@@ -48,7 +48,7 @@ def feature_split(config, features, return_split_sizes=False):
     if config.dataset=='msd':
         clusters = fcluster(linkage, 0.75 * Y.max(), 'distance')
     else:
-        clusters = fcluster(linkage, 0.5 * Y.max(), 'distance')
+        clusters = fcluster(linkage, config.hc_threshold* Y.max(), 'distance')
 
     if(return_split_sizes):
         return clusters
@@ -68,7 +68,11 @@ def feature_as_a_cluster(config, features):
 
 def load_dataset(config):
     np.random.seed(0)
-    if config.dataset=='boston':
+    
+    if config.dataset not in ['life'] and (config.experiment==4 or config.experiment=='doublecv'):
+        data = _nips2019datasets_cv(config)
+
+    elif config.dataset=='boston':
         data = _boston(config)        
 
     elif config.dataset=='cement':
@@ -119,8 +123,11 @@ def load_dataset(config):
     elif config.dataset=='kidney_disease':
         data = _kidney_disease(config)
 
-    elif config.dataset=='wisconsin':
-        data = _wisconsin(config)
+    elif config.dataset=='winconsin':
+        data = _winconsin(config)
+
+    elif config.dataset=='esr':
+        data = _esr(config)
 
 
     return data
@@ -507,38 +514,6 @@ def _msd(config):
             data[str(i)] = x
 
     return data
-
-def _life(config):
-    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'life_expectancy.csv'))
-    data_df[['Country']] = data_df[['Country']].apply(LabelEncoder().fit_transform)
-    data_df[['Status']] = data_df[['Status']].apply(LabelEncoder().fit_transform)
-    data_df = data_df.dropna()
-    
-    target_col = 'Life expectancy '
-
-    y = data_df[target_col]
-
-    df = data_df.drop(columns=[target_col])
-    cols = df.columns.tolist()
-    
-    if config.mod_split=='none':
-        X = df.values
-        data = {'0':X, 'y':y}
-
-    elif config.mod_split=='random':
-        X = random_split(config, df.values)
-        data = {'y':y}
-        for i, x in enumerate(X):
-            data[str(i)] = x
-
-    elif config.mod_split=='computation_split':
-        X = feature_split(config, df.values)
-        data = {'y':y}
-        for i, x in enumerate(X):
-            data[str(i)] = x
-
-    return data
-
 
 def _life(config):
     data_df = pd.read_csv(os.path.join(config.dataset_dir, 'life_expectancy.csv'))
@@ -1008,9 +983,9 @@ def _kidney_disease(config):
         data['y_test'] = y_test
     return data
 
-def _wisconsin(config):
-    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/wisconsin_data.txt'))
-    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/wisconsin_labels.txt'))
+def _winconsin(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/winconsin_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/winconsin_labels.txt'))
     data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
     data_df.columns = [str(x) for x in range(len(data_df.columns))]
     target_col = str(len(data_df.columns)-1)
@@ -1065,4 +1040,72 @@ def _wisconsin(config):
             data["{}_test".format(i)] = x
 
         data['y_test'] = y_test
+    return data
+
+
+def _nips2019datasets_cv(config):
+    tmp_df1 = pd.DataFrame(utils.read_data(config.dataset_dir+'/' + config.dataset +'_data.txt'))
+    tmp_df2 = pd.DataFrame(utils.read_data(config.dataset_dir+'/' + config.dataset +'_labels.txt'))
+    data_df = pd.concat([tmp_df1, tmp_df2], axis=1)
+    data_df.columns = [str(x) for x in range(len(data_df.columns))]
+    target_col = str(len(data_df.columns)-1)
+    data_df[[target_col]] = data_df[[target_col]].replace(-1, 0)
+
+    df = data_df.drop(columns=[target_col])
+    df = df.fillna(np.nan)
+    cols = df.columns.tolist()
+    y = np.asarray(data_df[target_col])
+    print("df {}, y {}".format(df.shape, y.shape))
+
+    if config.mod_split=='none':
+        X = df.values
+        X, _ = utils.replace_missing(X, X, config, True)
+        data = {'0':X, 'y':y}
+
+    elif config.mod_split=='computation_split':
+        X = df.values
+        X_filled, _ = utils.replace_missing(df.values, df.values, config, True)
+        clusters = feature_split(config, X_filled, return_split_sizes=True)
+        data = {'y':y}
+        
+        X_split = []
+        for cluster in set(clusters):
+            indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
+            print(indices)
+            X_split.append(X[:, indices])
+        
+        for i, x in enumerate(X_split):
+            data[str(i)] = x        
+
+    return data
+
+def _esr(config):
+    data_df = pd.read_csv(os.path.join(config.dataset_dir, 'esr.csv'))
+    data_df = data_df.drop(columns=['Unnamed: 0'])
+    
+    target_col = 'y'
+
+    data_df[[target_col]] = data_df[[target_col]] - 1
+    y = data_df[target_col]
+
+    df = data_df.drop(columns=[target_col])
+    df = df.astype(float)
+    cols = df.columns.tolist()
+    
+    if config.mod_split=='none':
+        X = df.values
+        data = {'0':X, 'y':y}
+
+    elif config.mod_split=='random':
+        X = random_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
+    elif config.mod_split=='computation_split':
+        X = feature_split(config, df.values)
+        data = {'y':y}
+        for i, x in enumerate(X):
+            data[str(i)] = x
+
     return data
