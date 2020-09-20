@@ -561,7 +561,7 @@ def _life(config):
         X_test_split = []
         for cluster in set(clusters):
             indices = [j for j in range(len(clusters)) if clusters[j]==cluster]
-            print(indices)
+            # print(indices)
             X_test_split.append(x_test[:, indices])
         
         for i, x in enumerate(X_test_split):

@@ -147,8 +147,8 @@ def train_life(X, y, config, x_test, y_test):
 		x_train[i], x_val[i] = utils.standard_scale(x_train[i], x_val[i])
 		_, x_test[i] = utils.standard_scale(x_train_val[i], x_test[i])
 
-	for i in range(n_feature_sets):
-		print(np.mean(x_train[i]), np.mean(x_val[i]), np.mean(x_test[i]))
+	# for i in range(n_feature_sets):
+	# 	print(np.mean(x_train[i]), np.mean(x_val[i]), np.mean(x_test[i]))
 
 	model, loss = models.build_model(config)
 
@@ -162,10 +162,12 @@ def train_life(X, y, config, x_test, y_test):
 	# 											 str(fold)), histogram_freq=1, 
 	# 											 write_graph=True, write_images=False)
 
-	if config.task=='regression':
+	if config.train:
 		model.compile(optimizer=tf.optimizers.Adam(learning_rate=config.lr),
 					  loss=loss)
-
+	else:
+		model.compile(optimizer=tf.optimizers.Adam(learning_rate=1e-2),
+					  loss=loss)
 	# [print('Shape of feature train set {} {}'.format(e, np.array(i).shape)) for e,i in enumerate(x_train)]
 	# [print('Shape of feature val set {} {}'.format(e, np.array(i).shape)) for e,i in enumerate(x_val)]
 	# [print('Shape of feature test set {} {}'.format(e, np.array(i).shape)) for e,i in enumerate(x_test)]
@@ -181,7 +183,10 @@ def train_life(X, y, config, x_test, y_test):
 							verbose=config.verbose,
 							validation_data=(x_val, y_val),
 							callbacks=[checkpointer])
-	model.load_weights(checkpoint_filepath)
+		model.load_weights(checkpoint_filepath)
+	else:
+			model.load_weights(checkpoint_filepath).expect_partial()
+
 	test_score = mean_squared_error(model.predict(x_test), y_test, squared=False)
 	test_scores.append(test_score)
 	

@@ -17,6 +17,7 @@ def main(config):
 
     if config.dataset=='life':
         config.task='regression'
+        config.experiment='train-test'
     else:
         config.task='classification'
         config.experiment='doublecv'
