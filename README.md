@@ -1,4 +1,4 @@
-# [Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks](https://arxiv.org/abs/2011.09596)
+# Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks
 
 Code for the paper - [https://arxiv.org/abs/2011.09596](https://arxiv.org/abs/2011.09596)
 
