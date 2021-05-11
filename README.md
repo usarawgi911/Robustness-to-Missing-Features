@@ -1,8 +1,8 @@
-# Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks
+# [Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks](https://arxiv.org/abs/2011.09596)
 
-The code is shared for easy reproducibility and to encourage future work.
+Code for the paper - [https://arxiv.org/abs/2011.09596](https://arxiv.org/abs/2011.09596)
 
-The following readme has simple steps to reproduce the training and evaluation for any of the datasets mentioned
+The following readme has simple steps to reproduce the training and evaluation for any of the datasets mentioned.
 
 ## Setup
 1. Setup Virtual Environment
@@ -40,3 +40,16 @@ python main.py evaluate --dataset_dir datasets --dataset life --model_dir life_m
 6. Pima Indians : pima
 7. Hepatitis : hepatitis
 8. Breast Cancer Winconsin : winconsin
+
+## Citation
+
+If you find this project useful for your research, please use the following BibTeX entry to cite our paper [https://arxiv.org/abs/2011.09596](https://arxiv.org/abs/2011.09596).
+
+    @misc{khincha2020robustness,
+          title={Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks}, 
+          author={Rishab Khincha and Utkarsh Sarawgi and Wazeer Zulfikar and Pattie Maes},
+          year={2020},
+          eprint={2011.09596},
+          archivePrefix={arXiv},
+          primaryClass={cs.LG}
+    }
