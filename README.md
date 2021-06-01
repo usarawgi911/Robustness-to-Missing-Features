@@ -43,13 +43,7 @@ python main.py evaluate --dataset_dir datasets --dataset life --model_dir life_m
 
 ## Citation
 
-If you find this project useful for your research, please use the following BibTeX entry to cite our paper [https://arxiv.org/abs/2011.09596](https://arxiv.org/abs/2011.09596).
+If you find this project useful for your research, please use the following BibTeX entry to cite our paper [https://ojs.aaai.org/index.php/AAAI/article/view/17905](https://ojs.aaai.org/index.php/AAAI/article/view/17905).
 
-    @misc{khincha2020robustness,
-          title={Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks}, 
-          author={Rishab Khincha and Utkarsh Sarawgi and Wazeer Zulfikar and Pattie Maes},
-          year={2020},
-          eprint={2011.09596},
-          archivePrefix={arXiv},
-          primaryClass={cs.LG}
+    @article{Khincha_Sarawgi_Zulfikar_Maes_2021, title={Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks (Student Abstract)}, volume={35}, url={https://ojs.aaai.org/index.php/AAAI/article/view/17905}, number={18}, journal={Proceedings of the AAAI Conference on Artificial Intelligence}, author={Khincha, Rishab and Sarawgi, Utkarsh and Zulfikar, Wazeer and Maes, Pattie}, year={2021}, month={May}, pages={15817-15818} }
     }
