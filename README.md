@@ -1,6 +1,6 @@
 # Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks
 
-Code for the paper - [https://arxiv.org/abs/2011.09596](https://arxiv.org/abs/2011.09596)
+Code for the paper - [https://ojs.aaai.org/index.php/AAAI/article/view/17905](https://ojs.aaai.org/index.php/AAAI/article/view/17905)
 
 The following readme has simple steps to reproduce the training and evaluation for any of the datasets mentioned.
 
@@ -45,5 +45,14 @@ python main.py evaluate --dataset_dir datasets --dataset life --model_dir life_m
 
 If you find this project useful for your research, please use the following BibTeX entry to cite our paper [https://ojs.aaai.org/index.php/AAAI/article/view/17905](https://ojs.aaai.org/index.php/AAAI/article/view/17905).
 
-    @article{Khincha_Sarawgi_Zulfikar_Maes_2021, title={Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks (Student Abstract)}, volume={35}, url={https://ojs.aaai.org/index.php/AAAI/article/view/17905}, number={18}, journal={Proceedings of the AAAI Conference on Artificial Intelligence}, author={Khincha, Rishab and Sarawgi, Utkarsh and Zulfikar, Wazeer and Maes, Pattie}, year={2021}, month={May}, pages={15817-15818} }
+    @article{khincha2021missing,
+            author={Khincha, Rishab and Sarawgi, Utkarsh and Zulfikar, Wazeer and Maes, Pattie}, 
+            title={Robustness to Missing Features using Hierarchical Clustering with Split Neural Networks (Student Abstract)}, 
+            volume={35}, 
+            url={https://ojs.aaai.org/index.php/AAAI/article/view/17905}, 
+            number={18}, 
+            journal={Proceedings of the AAAI Conference on Artificial Intelligence}, 
+            year={2021}, 
+            month={May}, 
+            pages={15817-15818}
     }
